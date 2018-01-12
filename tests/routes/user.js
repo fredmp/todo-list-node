@@ -1,6 +1,6 @@
 const assert = require('assert');
 const request = require('supertest');
-const ObjectID = require('mongodb').ObjectID;
+const { ObjectID } = require('mongodb');
 
 const app = require('./../../src/app');
 const User = require('./../../src/models/user');

@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const ObjectID = require('mongodb').ObjectID;
+const { ObjectID } = require('mongodb');
 
 const User = require('../models/user');
 
