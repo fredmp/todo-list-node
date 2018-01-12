@@ -1,11 +1,8 @@
-require('./config/mongo');
-
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const ObjectID = require('mongodb').ObjectID;
 
-const mongoose = require('./db/mongoose');
 const Todo = require('./models/todo');
 const User = require('./models/user');
 
@@ -25,8 +22,12 @@ app.post('/todos', (req, res) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Started up at port ${process.env.PORT}`);
+app.get('/todos', (req, res) => {
+  Todo.find().then((todos) => {
+    res.send({todos});
+  }, (e) => {
+    res.status(400).send(e);
+  });
 });
 
 module.exports = app;
