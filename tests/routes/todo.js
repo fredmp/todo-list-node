@@ -2,8 +2,8 @@ const assert = require('assert');
 const request = require('supertest');
 const ObjectID = require('mongodb').ObjectID;
 
-const app = require('./../src/app');
-const Todo = require('./../src/models/todo');
+const app = require('./../../src/app');
+const Todo = require('./../../src/models/todo');
 
 const todos = [{
   _id: new ObjectID(),

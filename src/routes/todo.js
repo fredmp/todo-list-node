@@ -2,13 +2,10 @@ const _ = require('lodash');
 const ObjectID = require('mongodb').ObjectID;
 
 const Todo = require('../models/todo');
-const User = require('../models/user');
 
 module.exports.setup = app => {
   app.post('/todos', (req, res) => {
-    const todo = new Todo({
-      text: req.body.text
-    });
+    const todo = new Todo({ text: req.body.text });
 
     todo.save().then((doc) => {
       res.send(doc);

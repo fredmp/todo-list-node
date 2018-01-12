@@ -9,6 +9,7 @@ const User = mongoose.model('User', {
     minlength: 4,
     unique: true,
     validate: {
+      isAsync: false,
       validator: validator.isEmail,
       message: '{VALUE} is not a valid email'
     }
