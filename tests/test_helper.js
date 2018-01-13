@@ -24,6 +24,7 @@ afterEach(done => {
     todos.drop(),
     users.drop()
   ])
+  .then(() => users.ensureIndex({ 'email': 1 }, { unique: true }))
   .then(() => done())
   .catch(error => {
     if (error.codeName !== 'NamespaceNotFound') {

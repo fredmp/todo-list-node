@@ -9,6 +9,7 @@
     "test": "NODE_ENV=test nodemon --exec 'mocha tests/ --recursive -R min'"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "glob": "^7.1.2",
