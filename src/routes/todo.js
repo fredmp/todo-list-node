@@ -9,7 +9,7 @@ module.exports.setup = app => {
 
     todo.save().then((doc) => {
       res.send(doc);
-    }, (e) => {
+    }).catch(e => {
       res.status(400).send(e);
     });
   });
@@ -17,7 +17,7 @@ module.exports.setup = app => {
   app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
       res.send({todos});
-    }, (e) => {
+    }).catch(e => {
       res.status(400).send(e);
     });
   });

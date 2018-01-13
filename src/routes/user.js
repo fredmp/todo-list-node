@@ -8,9 +8,11 @@ module.exports.setup = app => {
     const body = _.pick(req.body, ['email', 'password']);
     const user = new User(body);
 
-    user.save().then((doc) => {
-      res.send(_.omit(doc, ['password']));
-    }, (e) => {
+    user.save().then(() => {
+      return user.generateAuthToken();
+    }).then(token => {
+      res.header('x-auth', token).send(_.omit(user, ['password']));
+    }).catch(e => {
       res.status(400).send(e);
     });
   });
