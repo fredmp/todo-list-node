@@ -1,27 +1,10 @@
-const jwt = require('jsonwebtoken');
 const assert = require('assert');
 const request = require('supertest');
 const { ObjectID } = require('mongodb');
 
 const app = require('./../../src/app');
 const User = require('./../../src/models/user');
-const userOneId = new ObjectID();
-const userTwoId = new ObjectID();
-const users = [
-  {
-    _id: userOneId,
-    email: 'user1@domain.com',
-    password: 'password1',
-    tokens: [
-      { access: 'auth', token: jwt.sign({ _id: userOneId, access: 'auth' }, '2244').toString() }
-    ]
-  },
-  {
-    _id: userTwoId,
-    email: 'user2@domain.com',
-    password: 'password2'
-  }
-];
+const { users } = require('../seeds');
 
 beforeEach(done => {
   Promise.all([
