@@ -19,10 +19,7 @@ const users = [
   {
     _id: userTwoId,
     email: 'user2@domain.com',
-    password: 'password2',
-    tokens: [
-      { access: 'auth', token: jwt.sign({ _id: userTwoId, access: 'auth' }, '2244').toString() }
-    ]
+    password: 'password2'
   }
 ];
 
@@ -46,9 +43,7 @@ describe('POST /users', () => {
         assert.equal(res.body.email, email);
       })
       .end((err, res) => {
-        if (err) {
-          return done(err);
-        }
+        if (err) return done(err);
         assert(!!res.headers['x-auth']);
         assert.equal(res.body.email, email);
         User.find({email}).then((users) => {
@@ -67,10 +62,7 @@ describe('POST /users', () => {
       .send({})
       .expect(400)
       .end((err, res) => {
-        if (err) {
-          return done(err);
-        }
-
+        if (err) return done(err);
         User.find().then((users) => {
           assert.equal(users.length, 2);
           done();
@@ -87,9 +79,7 @@ describe('POST /users', () => {
       .send({ email, password })
       .expect(400)
       .end((err, res) => {
-        if (err) {
-          return done(err);
-        }
+        if (err) return done(err);
         assert(res.body.errmsg.includes('duplicate key error'));
         done();
       });
@@ -116,6 +106,43 @@ describe('GET /users/me', () => {
       .expect(401)
       .end((err, res) => {
         done();
+      });
+  });
+});
+
+describe('POST /users/login', () => {
+  it('logs in the user and returns auth token', done => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: users[1].password
+      })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        assert.equal(res.body.email, users[1].email);
+        User.findById(users[1]._id).then(user => {
+          assert.equal(res.headers['x-auth'], user.tokens[0].token);
+          done();
+        }).catch(e => done(e));
+      });
+  });
+
+  it('rejects invalid login', done => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: 'invalid_password'
+      })
+      .expect(400)
+      .end((err, res) => {
+        if (err) return done(err);
+        User.findById(users[1]._id).then(user => {
+          assert.equal(user.tokens.length, 0);
+          done();
+        }).catch(e => done(e));
       });
   });
 });

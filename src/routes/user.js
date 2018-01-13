@@ -18,7 +18,21 @@ module.exports.setup = app => {
     });
   });
 
+  app.post('/users/login', (req, res) => {
+    const { email, password } = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(email, password)
+      .then(user => {
+        user.generateAuthToken().then(token => {
+          res.header('x-auth', token).send(user);
+        })
+      })
+      .catch(error => {
+        res.status(400).end();
+      });
+  });
+
   app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
-  })
+  });
 }
