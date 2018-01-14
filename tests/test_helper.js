@@ -4,7 +4,12 @@ const mongoose = require('mongoose');
 before(done => {
   mongoose.Promise = global.Promise;
 
-  mongoose.connect('mongodb://localhost:27017/todo-test', { useMongoClient: true });
+  const config = (require('../config.json') || {})['test'];
+  Object.keys(config).forEach(key => {
+    process.env[key] = config[key];
+  });
+
+  mongoose.connect(process.env.MONGODB_URI, { useMongoClient: true });
   mongoose.connection
     .once('open', () => done())
     .on('error', error => {

@@ -4,13 +4,15 @@ const { ObjectID } = require('mongodb');
 const userOneId = new ObjectID();
 const userTwoId = new ObjectID();
 
+const secret = require('../config.json')['test']['SECRET'];
+
 const users = [
   {
     _id: userOneId,
     email: 'user1@domain.com',
     password: 'password1',
     tokens: [
-      { access: 'auth', token: jwt.sign({ _id: userOneId, access: 'auth' }, '2244').toString() }
+      { access: 'auth', token: jwt.sign({ _id: userOneId, access: 'auth' }, secret).toString() }
     ]
   },
   {

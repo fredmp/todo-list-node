@@ -1,8 +1,16 @@
 const mongoose = require('mongoose');
 const app = require('./src/app');
 const env = process.env.NODE_ENV || 'development';
-const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/todo-development';
-const port = process.env.PORT || 3000;
+
+if (env === 'development') {
+  const config = (require('./config.json') || {})[env];
+  Object.keys(config).forEach(key => {
+    process.env[key] = config[key];
+  });
+}
+
+const uri = process.env.MONGODB_URI;
+const port = process.env.PORT;
 
 mongoose.Promise = global.Promise;
 
