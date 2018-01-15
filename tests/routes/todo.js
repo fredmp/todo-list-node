@@ -1,4 +1,4 @@
-const assert = require('assert');
+const expect = require('expect');
 const request = require('supertest');
 const { ObjectID } = require('mongodb');
 
@@ -21,14 +21,11 @@ describe('POST /todos', () => {
       .set('x-auth', users[0].tokens[0].token)
       .send({ text })
       .expect(200)
-      .expect((res) => {
-        assert.equal(res.body.text, text);
-      })
-      .end((err, res) => {
-        if (err) return done(err);
+      .then(res => {
+        expect(res.body.text).toBe(text);
         Todo.find({text}).then((todos) => {
-          assert.equal(todos.length, 1);
-          assert.equal(todos[0].text, text);
+          expect(todos.length).toBe(1);
+          expect(todos[0].text).toBe(text);
           done();
         }).catch((e) => done(e));
       });
@@ -40,10 +37,9 @@ describe('POST /todos', () => {
       .set('x-auth', users[0].tokens[0].token)
       .send({})
       .expect(400)
-      .end((err, res) => {
-        if (err) return done(err);
+      .then(res => {
         Todo.find().then((todos) => {
-          assert.equal(todos.length, 2);
+          expect(todos.length).toBe(2);
           done();
         }).catch((e) => done(e));
       });
@@ -56,10 +52,10 @@ describe('GET /todos', () => {
       .get('/todos')
       .set('x-auth', users[0].tokens[0].token)
       .expect(200)
-      .expect((res) => {
-        assert.equal(res.body.todos.length, 1);
-      })
-      .end(done);
+      .then(res => {
+        expect(res.body.todos.length).toBe(1);
+        done();
+      }).catch((e) => done(e));
   });
 });
 
@@ -69,10 +65,10 @@ describe('GET /todos/:id', () => {
       .get(`/todos/${todos[0]._id.toHexString()}`)
       .set('x-auth', users[0].tokens[0].token)
       .expect(200)
-      .expect((res) => {
-        assert.equal(res.body.todo.text, todos[0].text);
-      })
-      .end(done);
+      .then(res => {
+        expect(res.body.todo.text).toBe(todos[0].text);
+        done();
+      }).catch((e) => done(e));
   });
 
   it('does not return todo document created by other user', done => {
@@ -108,16 +104,13 @@ describe('DELETE /todos/:id', () => {
       .delete(`/todos/${id}`)
       .set('x-auth', users[0].tokens[0].token)
       .expect(200)
-      .expect((res) => {
-        assert.equal(res.body.todo._id, id);
-      })
-      .end((err, res) => {
-        if (err) return done(err);
+      .then(res => {
+        expect(res.body.todo._id).toBe(id);
         Todo.findById(id).then(todo => {
-          assert.equal(todo, null);
+          expect(todo).toBeNull();
           done();
-        }).catch((e) => done(e));
-      });
+        });
+      }).catch((e) => done(e));
   });
 
   it('returns 404 if todo not found', done => {
@@ -148,12 +141,12 @@ describe('PATCH /todos/:id', () => {
       .set('x-auth', users[0].tokens[0].token)
       .send({ completed: true, text })
       .expect(200)
-      .expect((res) => {
-        assert.equal(res.body.todo.text, text);
-        assert.equal(res.body.todo.completed, true);
-        assert(typeof res.body.todo.completedAt === 'number');
-      })
-      .end(done);
+      .then(res => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBeTruthy();
+        expect(typeof res.body.todo.completedAt === 'number').toBeTruthy();
+        done();
+      }).catch((e) => done(e));
   });
 
   it('clears completedAt when todo is not completed', done => {
@@ -165,11 +158,11 @@ describe('PATCH /todos/:id', () => {
       .set('x-auth', users[0].tokens[0].token)
       .send({ completed: false, text })
       .expect(200)
-      .expect((res) => {
-        assert.equal(res.body.todo.text, text);
-        assert.equal(res.body.todo.completed, false);
-        assert.equal(res.body.todo.completedAt, null);
-      })
-      .end(done);
+      .then(res => {
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBeFalsy();
+        expect(res.body.todo.completedAt).toBeNull();
+        done();
+      }).catch((e) => done(e));
   });
 });

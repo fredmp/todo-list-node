@@ -1,4 +1,4 @@
-const assert = require('assert');
+const expect = require('expect');
 const request = require('supertest');
 const { ObjectID } = require('mongodb');
 
@@ -22,18 +22,14 @@ describe('POST /users', () => {
       .post('/users')
       .send({ email, password })
       .expect(200)
-      .expect((res) => {
-        assert.equal(res.body.email, email);
-      })
-      .end((err, res) => {
-        if (err) return done(err);
-        assert(!!res.headers['x-auth']);
-        assert.equal(res.body.email, email);
+      .then(res => {
+        expect(res.headers['x-auth']).toBeDefined();
+        expect(res.body.email).toBe(email);
         User.find({email}).then((users) => {
-          assert.equal(users.length, 1);
-          assert.equal(users[0].email, email);
-          assert.notEqual(users[0].password, password);
-          assert(users[0].password.length > 10);
+          expect(users.length).toBe(1);
+          expect(users[0].email).toBe(email);
+          expect(users[0].password).not.toBe(password);
+          expect(users[0].password.length).toBeGreaterThan(10);
           done();
         }).catch((e) => done(e));
       });
@@ -44,10 +40,9 @@ describe('POST /users', () => {
       .post('/users')
       .send({})
       .expect(400)
-      .end((err, res) => {
-        if (err) return done(err);
+      .then(res => {
         User.find().then((users) => {
-          assert.equal(users.length, 2);
+          expect(users.length).toBe(2);
           done();
         }).catch((e) => done(e));
       });
@@ -61,9 +56,8 @@ describe('POST /users', () => {
       .post('/users')
       .send({ email, password })
       .expect(400)
-      .end((err, res) => {
-        if (err) return done(err);
-        assert(res.body.errmsg.includes('duplicate key error'));
+      .then(res => {
+        expect(res.body.errmsg.includes('duplicate key error')).toBeTruthy();
         done();
       });
   });
@@ -75,9 +69,9 @@ describe('GET /users/me', () => {
       .get('/users/me')
       .set('x-auth', users[0].tokens[0].token)
       .expect(200)
-      .end((err, res) => {
-        assert.equal(res.body._id, users[0]._id.toString());
-        assert.equal(res.body.email, users[0].email);
+      .then(res => {
+        expect(res.body._id).toBe(users[0]._id.toString());
+        expect(res.body.email).toBe(users[0].email);
         done();
       });
   });
@@ -87,7 +81,7 @@ describe('GET /users/me', () => {
       .get('/users/me')
       .set('x-auth', 'invalid_token')
       .expect(401)
-      .end((err, res) => {
+      .then(res => {
         done();
       });
   });
@@ -102,11 +96,10 @@ describe('POST /users/login', () => {
         password: users[1].password
       })
       .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        assert.equal(res.body.email, users[1].email);
+      .then(res => {
+        expect(res.body.email).toBe(users[1].email);
         User.findById(users[1]._id).then(user => {
-          assert.equal(res.headers['x-auth'], user.tokens[0].token);
+          expect(res.headers['x-auth']).toBe(user.tokens[0].token);
           done();
         }).catch(e => done(e));
       });
@@ -120,10 +113,9 @@ describe('POST /users/login', () => {
         password: 'invalid_password'
       })
       .expect(400)
-      .end((err, res) => {
-        if (err) return done(err);
+      .then(res => {
         User.findById(users[1]._id).then(user => {
-          assert.equal(user.tokens.length, 0);
+          expect(user.tokens.length).toBe(0);
           done();
         }).catch(e => done(e));
       });
@@ -136,10 +128,9 @@ describe('DELETE /users/me/token', () => {
       .delete('/users/me/token')
       .set('x-auth', users[0].tokens[0].token)
       .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
+      .then(res => {
         User.findById(users[1]._id).then(user => {
-          assert.equal(user.tokens.length, 0);
+          expect(user.tokens.length).toBe(0);
           done();
         }).catch(e => done(e));
       });
